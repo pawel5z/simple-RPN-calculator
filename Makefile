@@ -9,7 +9,7 @@ OBJS = interp.o onp.o
 
 all: $(NAME)
 
-debug: CFLAGS += -fsanitize=address -fsanitize=leak
+debug: CFLAGS += -g -Og -fsanitize=address -fsanitize=leak
 debug: $(NAME)
 
 $(NAME): $(OBJS)

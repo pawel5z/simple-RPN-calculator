@@ -96,29 +96,33 @@ double Eval(const std::deque<calc::Symbol *> &symbols)
 	if (symbols.empty())
 		throw std::invalid_argument("symbols queue is empty");
 
-	using namespace calc;
 	std::stack<double> evalStack;
-	double arg1, arg2;
-	for (auto it = symbols.begin(); it != symbols.end(); it++)
+	for (auto *sym : symbols)
 	{
-		Symbol *aux = *it;
-		if (aux->Tag() == "operand")
-			evalStack.push(aux->Calculate());
-		else if (aux->Tag() == "1arg-function")
+		if (sym->Tag() == "operand")
 		{
-			arg1 = evalStack.top();
-			evalStack.pop();
-			evalStack.push(aux->Calculate(arg1));
+			evalStack.push(sym->Calculate());
 		}
-		else if (aux->Tag() == "2arg-function")
+		else if (sym->Tag() == "1arg-function")
 		{
-			arg2 = evalStack.top();
+			if (evalStack.size() < 1)
+				throw std::invalid_argument("too few arguments");
+			double arg = evalStack.top();
 			evalStack.pop();
-			arg1 = evalStack.top();
+			evalStack.push(sym->Calculate(arg));
+		}
+		else if (sym->Tag() == "2arg-function")
+		{
+			if (evalStack.size() < 2)
+				throw std::invalid_argument("too few arguments");
+			double arg2 = evalStack.top();
 			evalStack.pop();
-			evalStack.push(aux->Calculate(arg1, arg2));
+			double arg1 = evalStack.top();
+			evalStack.pop();
+			evalStack.push(sym->Calculate(arg1, arg2));
 		}
 	}
+
 	if (evalStack.size() > 1)
 		throw std::invalid_argument("Bad number of arguments");
 	return evalStack.top();
@@ -141,7 +145,10 @@ int main()
 		symbols.clear();
 
 		if (line)
+		{
 			free(line);
+			line = nullptr;
+		}
 		line = readline(prompt);
 
 		if (!line)
@@ -152,8 +159,8 @@ int main()
 
 		std::stringstream ss(line);
 		std::string command;
-
 		ss >> command;
+
 		if (command == "print")
 		{
 			try
@@ -224,6 +231,7 @@ int main()
 		else if (command == "exit")
 		{
 			quit = true;
+			continue;
 		}
 		else
 		{
@@ -231,9 +239,12 @@ int main()
 			if (std::regex_match(command, re))
 				continue;
 			std::clog << "Unknown command: \'" << command << "\'" << std::endl;
-			add_history(line);
 		}
+
+		add_history(line);
 	}
+
+	free(line);
 
 	return 0;
 }
