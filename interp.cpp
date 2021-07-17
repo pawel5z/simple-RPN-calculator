@@ -8,6 +8,8 @@
 #include <set>
 #include <deque>
 #include <limits>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 std::deque<calc::Symbol *> Parse(std::string &input)
 {
@@ -125,7 +127,8 @@ int main()
 	std::string toParse;
 	std::set<std::string> forbiddenVarNames{"e", "phi", "pi", "print", "assign", "to", "clear", "exit", "+", "-", "*", "/", "modulo", "min", "max", "log", "pow", "abs", "sgn", "floor", "ceil", "frac", "sin", "cos", "atan", "acot", "ln", "exp"};
 
-	do
+	bool quit = false;
+	while (!quit)
 	{
 		symbols.clear();
 		command = "";
@@ -201,11 +204,16 @@ int main()
 			Variable::Clear();
 			std::cout << "Environment clear" << std::endl;
 		}
+		else if (command == "exit")
+		{
+			quit = true;
+		}
 		else if (command != "exit")
 		{
 			std::clog << "Unknown command: \'" << command << "\'" << std::endl;
 			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		}
-	} while (command != "exit");
+	}
+
 	return 0;
 }
