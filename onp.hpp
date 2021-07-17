@@ -3,7 +3,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace kalkulator
+namespace calc
 {
 	class Symbol
 	{
@@ -21,47 +21,47 @@ namespace kalkulator
 		std::string Tag() override;
 	};
 
-	class Funkcja : public Symbol
+	class Func : public Symbol
 	{
 	};
 
-	class Liczba : public Operand
+	class Number : public Operand
 	{
 	private:
 		double val;
 	public:
-		Liczba(double val);
+		Number(double val);
 		double Calculate() override;
 	};
 
-	class Zmienna : public Operand
+	class Variable : public Operand
 	{
 	private:
 		std::string name;
 	public:
 		static std::unordered_map<std::string, double> assoc;
-		Zmienna(std::string name);
+		Variable(std::string name);
 		double Calculate() override;
 		static void Clear();
 	};
 
-	class Stala : public Operand
+	class Constant : public Operand
 	{
 	private:
 		std::string name;
 		double val;
 	public:
-		Stala(std::string name, double val);
+		Constant(std::string name, double val);
 		double Calculate() override;
 	};
 
-	class Arg1F : public Funkcja
+	class Arg1F : public Func
 	{
 	public:
 		virtual std::string Tag() override;
 	};
 
-	class Arg2F : public Funkcja
+	class Arg2F : public Func
 	{
 	public:
 		virtual std::string Tag() override;

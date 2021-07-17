@@ -9,9 +9,9 @@
 #include <deque>
 #include <limits>
 
-std::deque<kalkulator::Symbol*> Parse(std::string &input)
+std::deque<calc::Symbol*> Parse(std::string &input)
 {
-	using namespace kalkulator;
+	using namespace calc;
 	std::stringstream ss;
 	std::deque<Symbol*> symbols;
 	ss << input;
@@ -23,7 +23,7 @@ std::deque<kalkulator::Symbol*> Parse(std::string &input)
 		try
 		{
 			number = std::stod(input);
-			symbols.push_back(new Liczba(number));
+			symbols.push_back(new Number(number));
 			continue;
 		}
 		catch (std::out_of_range &e)
@@ -32,11 +32,11 @@ std::deque<kalkulator::Symbol*> Parse(std::string &input)
 		{}
 
 		if (input == "e")
-			symbols.push_back(new Stala("e", 2.718281828459));
+			symbols.push_back(new Constant("e", 2.718281828459));
 		else if (input == "pi")
-			symbols.push_back(new Stala("pi", 3.141592653589));
+			symbols.push_back(new Constant("pi", 3.141592653589));
 		else if (input == "fi")
-			symbols.push_back(new Stala("fi", 1.618033988750));
+			symbols.push_back(new Constant("fi", 1.618033988750));
 		else if (input == "+")
 			symbols.push_back(new Add());
 		else if (input == "-")
@@ -78,16 +78,16 @@ std::deque<kalkulator::Symbol*> Parse(std::string &input)
 		else if (input == "exp")
 			symbols.push_back(new Exp());
 		else
-			symbols.push_back(new Zmienna(input));
+			symbols.push_back(new Variable(input));
 
 	}
 
 	return symbols;
 }
 
-double Eval(const std::deque<kalkulator::Symbol*> &symbols)
+double Eval(const std::deque<calc::Symbol*> &symbols)
 {
-	using namespace kalkulator;
+	using namespace calc;
 	std::stack<double> evalStack;
 	double arg1, arg2;
 	for (auto it = symbols.begin(); it != symbols.end(); it++)
@@ -117,7 +117,7 @@ double Eval(const std::deque<kalkulator::Symbol*> &symbols)
 
 int main()
 {
-	using namespace kalkulator;
+	using namespace calc;
 	std::string command = "";
 	std::deque<Symbol*> symbols;
 	std::string toParse;
@@ -183,13 +183,13 @@ int main()
 				std::clog << e.what() << std::endl;
 				continue;
 			}
-			Zmienna::assoc[varName] = result;
+			Variable::assoc[varName] = result;
 			std::cout << "Assigned " << varName << " = " << result << std::endl;
 
 		}
 		else if (command == "clear")
 		{
-			Zmienna::Clear();
+			Variable::Clear();
 			std::cout << "Environment clear" << std::endl;
 		}
 		else if (command != "exit")

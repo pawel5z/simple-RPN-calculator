@@ -3,7 +3,7 @@
 #include <cmath>
 #include <string>
 
-namespace kalkulator
+namespace calc
 {
 	//Symbol
 	Symbol::Symbol()
@@ -22,34 +22,34 @@ namespace kalkulator
 	std::string Operand::Tag()
 	{ return "operand"; }
 
-	//Liczba
-	Liczba::Liczba(double val) : val(val)
+	//Number
+	Number::Number(double val) : val(val)
 	{}
 
-	double Liczba::Calculate()
+	double Number::Calculate()
 	{ return val; }
 
-	//Zmienna
-	std::unordered_map<std::string, double> Zmienna::assoc;
+	//Variable
+	std::unordered_map<std::string, double> Variable::assoc;
 
-	Zmienna::Zmienna(std::string name) : name(name)
+	Variable::Variable(std::string name) : name(name)
 	{}
 
-	double Zmienna::Calculate()
+	double Variable::Calculate()
 	{
-		if (Zmienna::assoc.find(name) == Zmienna::assoc.end())
+		if (Variable::assoc.find(name) == Variable::assoc.end())
 			throw std::invalid_argument(std::string("Environment does not contain variable named \'" + name + "\'"));
 		return assoc[name];
 	}
 
-	void Zmienna::Clear()
+	void Variable::Clear()
 	{ assoc.clear(); }
 
-	//Stala
-	Stala::Stala(std::string name, double val) : name(name), val(val)
+	//Constant
+	Constant::Constant(std::string name, double val) : name(name), val(val)
 	{}
 
-	double Stala::Calculate()
+	double Constant::Calculate()
 	{ return val; }
 
 	//Arg1F
