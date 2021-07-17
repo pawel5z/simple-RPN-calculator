@@ -1,7 +1,19 @@
-CFLAGS=-std=c++11 -Wextra -Wall -pedantic
-interp : interp.o onp.o
-	g++ $(CFLAGS) interp.o onp.o -o interp
-interp.o : interp.cpp onp.hpp
-	g++ $(CFLAGS) -c interp.cpp -o interp.o
-onp.o : onp.cpp onp.hpp
-	g++ $(CFLAGS) -c onp.cpp -o onp.o
+CC = g++
+CFLAGS = -std=c++11 -Wextra -Wall -pedantic
+
+NAME = interp
+SRC = interp.cpp onp.cpp
+DEPS = onp.hpp
+OBJS = interp.o onp.o
+
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+
+%.o: %.c $(DEPS)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+clean:
+	rm -f *.o
+
+distclean: clean
+	rm -f $(NAME)
