@@ -10,21 +10,23 @@
 #include <limits>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <regex>
 
-std::deque<calc::Symbol *> Parse(std::string &input)
+std::deque<calc::Symbol *> Parse(std::stringstream &ss)
 {
 	using namespace calc;
-	std::stringstream ss;
 	std::deque<Symbol *> symbols;
-	ss << input;
 
-	double number = 0.0;
-	while (!ss.eof() && ss.peek() != '\n')
+	double number;
+	std::string token;
+	while (!ss.eof())
 	{
-		ss >> input;
+		ss >> token;
+
+		/* try converting token to number */
 		try
 		{
-			number = std::stod(input);
+			number = std::stod(token);
 			symbols.push_back(new Number(number));
 			continue;
 		}
@@ -36,54 +38,54 @@ std::deque<calc::Symbol *> Parse(std::string &input)
 		{
 		}
 
-		if (input == "e")
+		if (token == "e")
 			symbols.push_back(new Constant("e", 2.718281828459));
-		else if (input == "pi")
+		else if (token == "pi")
 			symbols.push_back(new Constant("pi", 3.141592653589));
-		else if (input == "fi")
+		else if (token == "fi")
 			symbols.push_back(new Constant("fi", 1.618033988750));
-		else if (input == "+")
+		else if (token == "+")
 			symbols.push_back(new Add());
-		else if (input == "-")
+		else if (token == "-")
 			symbols.push_back(new Sub());
-		else if (input == "*")
+		else if (token == "*")
 			symbols.push_back(new Mult());
-		else if (input == "/")
+		else if (token == "/")
 			symbols.push_back(new Div());
-		else if (input == "modulo")
+		else if (token == "modulo")
 			symbols.push_back(new Modulo());
-		else if (input == "min")
+		else if (token == "min")
 			symbols.push_back(new Min());
-		else if (input == "max")
+		else if (token == "max")
 			symbols.push_back(new Max());
-		else if (input == "log")
+		else if (token == "log")
 			symbols.push_back(new Log());
-		else if (input == "pow")
+		else if (token == "pow")
 			symbols.push_back(new Pow());
-		else if (input == "abs")
+		else if (token == "abs")
 			symbols.push_back(new Abs());
-		else if (input == "sgn")
+		else if (token == "sgn")
 			symbols.push_back(new Sgn());
-		else if (input == "floor")
+		else if (token == "floor")
 			symbols.push_back(new Floor());
-		else if (input == "ceil")
+		else if (token == "ceil")
 			symbols.push_back(new Ceil());
-		else if (input == "frac")
+		else if (token == "frac")
 			symbols.push_back(new Frac());
-		else if (input == "sin")
+		else if (token == "sin")
 			symbols.push_back(new Sin());
-		else if (input == "cos")
+		else if (token == "cos")
 			symbols.push_back(new Cos());
-		else if (input == "atan")
+		else if (token == "atan")
 			symbols.push_back(new Atan());
-		else if (input == "acot")
+		else if (token == "acot")
 			symbols.push_back(new Acot());
-		else if (input == "ln")
+		else if (token == "ln")
 			symbols.push_back(new Ln());
-		else if (input == "exp")
+		else if (token == "exp")
 			symbols.push_back(new Exp());
 		else
-			symbols.push_back(new Variable(input));
+			symbols.push_back(new Variable(token));
 	}
 
 	return symbols;
@@ -91,6 +93,9 @@ std::deque<calc::Symbol *> Parse(std::string &input)
 
 double Eval(const std::deque<calc::Symbol *> &symbols)
 {
+	if (symbols.empty())
+		throw std::invalid_argument("symbols queue is empty");
+
 	using namespace calc;
 	std::stack<double> evalStack;
 	double arg1, arg2;
@@ -119,34 +124,49 @@ double Eval(const std::deque<calc::Symbol *> &symbols)
 	return evalStack.top();
 }
 
+static const char *const prompt = "> ";
+
 int main()
 {
 	using namespace calc;
-	std::string command = "";
 	std::deque<Symbol *> symbols;
-	std::string toParse;
-	std::set<std::string> forbiddenVarNames{"e", "phi", "pi", "print", "assign", "to", "clear", "exit", "+", "-", "*", "/", "modulo", "min", "max", "log", "pow", "abs", "sgn", "floor", "ceil", "frac", "sin", "cos", "atan", "acot", "ln", "exp"};
+	std::set<std::string> forbiddenVarNames{"", "e", "phi", "pi", "print", "assign", "to", "clear", "exit", "+", "-", "*", "/", "modulo", "min", "max", "log", "pow", "abs", "sgn", "floor", "ceil", "frac", "sin", "cos", "atan", "acot", "ln", "exp"};
 
 	bool quit = false;
+	char *line = nullptr;
 	while (!quit)
 	{
+		for (auto *var : symbols)
+			delete var;
 		symbols.clear();
-		command = "";
-		std::cout << "> ";
-		std::cin >> command;
+
+		if (line)
+			free(line);
+		line = readline(prompt);
+
+		if (!line)
+		{
+			quit = true;
+			continue;
+		}
+
+		std::stringstream ss(line);
+		std::string command;
+
+		ss >> command;
 		if (command == "print")
 		{
-			std::getline(std::cin, toParse);
 			try
 			{
-				symbols = Parse(toParse);
+				symbols = Parse(ss);
 			}
 			catch (std::out_of_range &e)
 			{
 				std::clog << e.what() << std::endl
-						  << "Given number is too big" << std::endl;
+						  << "Too large number detected" << std::endl;
 				continue;
 			}
+
 			try
 			{
 				std::cout << Eval(symbols) << std::endl;
@@ -158,11 +178,8 @@ int main()
 		}
 		else if (command == "assign")
 		{
-			std::getline(std::cin, toParse);
-			std::stringstream ss;
 			std::string aux, varName;
-			ss << toParse;
-			toParse = "";
+			std::stringstream toParse;
 			while (!ss.eof())
 			{
 				ss >> aux;
@@ -171,17 +188,16 @@ int main()
 					ss >> varName;
 					break;
 				}
-				toParse += aux + " ";
+				toParse << aux;
 			}
-			toParse.pop_back();
 			if (forbiddenVarNames.count(varName) > 0)
 			{
-				std::clog << "Invalid variable name: \'" + varName + "\'" << std::endl;
+				std::clog << "Invalid variable name: \"" + varName + "\"" << std::endl;
 				continue;
 			}
 			else if (varName.size() > 7)
 			{
-				std::clog << "Variable name must consist of at most 7 characters" << std::endl;
+				std::clog << "Variable identifier must be at most 7 characters long" << std::endl;
 				continue;
 			}
 
@@ -197,7 +213,8 @@ int main()
 				continue;
 			}
 			Variable::assoc[varName] = result;
-			std::cout << "Assigned " << varName << " = " << result << std::endl;
+			std::cout << "\"" << varName << "\""
+					  << " = " << result << std::endl;
 		}
 		else if (command == "clear")
 		{
@@ -208,10 +225,13 @@ int main()
 		{
 			quit = true;
 		}
-		else if (command != "exit")
+		else
 		{
+			auto const re = std::regex(R"(\s*)");
+			if (std::regex_match(command, re))
+				continue;
 			std::clog << "Unknown command: \'" << command << "\'" << std::endl;
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			add_history(line);
 		}
 	}
 

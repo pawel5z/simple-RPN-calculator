@@ -1,5 +1,6 @@
 CC = g++
 CFLAGS = -std=c++11 -Wextra -Wall -pedantic
+LDLIBS = -lreadline
 
 NAME = interp
 SRC = interp.cpp onp.cpp

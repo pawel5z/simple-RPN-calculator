@@ -9,6 +9,7 @@ namespace calc
 	{
 	public:
 		Symbol();
+		virtual ~Symbol() = default;
 		virtual std::string Tag() = 0;
 		virtual double Calculate();
 		virtual double Calculate(double arg1);
