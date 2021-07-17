@@ -34,3 +34,6 @@
 *.out
 *.app
 interp
+
+# gdb files
+**/.gdb_history
