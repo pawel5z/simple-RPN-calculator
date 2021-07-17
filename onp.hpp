@@ -29,6 +29,7 @@ namespace calc
 	{
 	private:
 		double val;
+
 	public:
 		Number(double val);
 		double Calculate() override;
@@ -38,6 +39,7 @@ namespace calc
 	{
 	private:
 		std::string name;
+
 	public:
 		static std::unordered_map<std::string, double> assoc;
 		Variable(std::string name);
@@ -50,6 +52,7 @@ namespace calc
 	private:
 		std::string name;
 		double val;
+
 	public:
 		Constant(std::string name, double val);
 		double Calculate() override;
@@ -94,7 +97,7 @@ namespace calc
 		Div();
 		double Calculate(double arg1, double arg2) override;
 	};
-	
+
 	class Modulo : public Arg2F
 	{
 	public:
@@ -209,4 +212,4 @@ namespace calc
 	};
 }
 
-#endif
+#endif // ONP_HPP

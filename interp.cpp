@@ -9,11 +9,11 @@
 #include <deque>
 #include <limits>
 
-std::deque<calc::Symbol*> Parse(std::string &input)
+std::deque<calc::Symbol *> Parse(std::string &input)
 {
 	using namespace calc;
 	std::stringstream ss;
-	std::deque<Symbol*> symbols;
+	std::deque<Symbol *> symbols;
 	ss << input;
 
 	double number = 0.0;
@@ -27,9 +27,12 @@ std::deque<calc::Symbol*> Parse(std::string &input)
 			continue;
 		}
 		catch (std::out_of_range &e)
-		{ throw e; }
+		{
+			throw e;
+		}
 		catch (std::invalid_argument &e)
-		{}
+		{
+		}
 
 		if (input == "e")
 			symbols.push_back(new Constant("e", 2.718281828459));
@@ -79,13 +82,12 @@ std::deque<calc::Symbol*> Parse(std::string &input)
 			symbols.push_back(new Exp());
 		else
 			symbols.push_back(new Variable(input));
-
 	}
 
 	return symbols;
 }
 
-double Eval(const std::deque<calc::Symbol*> &symbols)
+double Eval(const std::deque<calc::Symbol *> &symbols)
 {
 	using namespace calc;
 	std::stack<double> evalStack;
@@ -119,10 +121,10 @@ int main()
 {
 	using namespace calc;
 	std::string command = "";
-	std::deque<Symbol*> symbols;
+	std::deque<Symbol *> symbols;
 	std::string toParse;
-	std::set<std::string> forbiddenVarNames {"e", "phi", "pi", "print", "assign", "to", "clear", "exit", "+", "-", "*", "/", "modulo", "min", "max", "log", "pow", "abs", "sgn", "floor", "ceil", "frac",
-	"sin", "cos", "atan", "acot", "ln", "exp"};
+	std::set<std::string> forbiddenVarNames{"e", "phi", "pi", "print", "assign", "to", "clear", "exit", "+", "-", "*", "/", "modulo", "min", "max", "log", "pow", "abs", "sgn", "floor", "ceil", "frac", "sin", "cos", "atan", "acot", "ln", "exp"};
+
 	do
 	{
 		symbols.clear();
@@ -133,17 +135,23 @@ int main()
 		{
 			std::getline(std::cin, toParse);
 			try
-			{ symbols = Parse(toParse); }
+			{
+				symbols = Parse(toParse);
+			}
 			catch (std::out_of_range &e)
 			{
 				std::clog << e.what() << std::endl
-				<< "Given number is too big" << std::endl;
+						  << "Given number is too big" << std::endl;
 				continue;
 			}
 			try
-			{ std::cout << Eval(symbols) << std::endl; }
+			{
+				std::cout << Eval(symbols) << std::endl;
+			}
 			catch (std::invalid_argument &e)
-			{ std::clog << e.what() << std::endl; }
+			{
+				std::clog << e.what() << std::endl;
+			}
 		}
 		else if (command == "assign")
 		{
@@ -173,11 +181,13 @@ int main()
 				std::clog << "Variable name must consist of at most 7 characters" << std::endl;
 				continue;
 			}
-			
+
 			double result = 0.0;
 			symbols = Parse(toParse);
 			try
-			{ result = Eval(symbols); }
+			{
+				result = Eval(symbols);
+			}
 			catch (std::invalid_argument &e)
 			{
 				std::clog << e.what() << std::endl;
@@ -185,7 +195,6 @@ int main()
 			}
 			Variable::assoc[varName] = result;
 			std::cout << "Assigned " << varName << " = " << result << std::endl;
-
 		}
 		else if (command == "clear")
 		{
@@ -197,7 +206,6 @@ int main()
 			std::clog << "Unknown command: \'" << command << "\'" << std::endl;
 			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		}
-	}
-	while (command != "exit");
+	} while (command != "exit");
 	return 0;
 }
