@@ -3,9 +3,9 @@ CFLAGS = -std=c++11 -Wextra -Wall -pedantic
 LDLIBS = -lreadline
 
 NAME = interp
-SRC = interp.cpp onp.cpp
-DEPS = onp.hpp
-OBJS = interp.o onp.o
+# SRC = interp.cpp rpn.cpp
+DEPS = rpn.hpp
+OBJS = interp.o rpn.o
 
 all: $(NAME)
 

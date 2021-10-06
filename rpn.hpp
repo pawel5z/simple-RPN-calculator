@@ -1,5 +1,5 @@
-#ifndef ONP_HPP
-#define ONP_HPP
+#ifndef RPN_HPP
+#define RPN_HPP
 #include <string>
 #include <unordered_map>
 
@@ -213,4 +213,4 @@ namespace calc
 	};
 }
 
-#endif // ONP_HPP
+#endif // RPN_HPP
